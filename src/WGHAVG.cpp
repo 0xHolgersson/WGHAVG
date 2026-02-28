@@ -24,7 +24,9 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "WGHAVG.h"
 
 /************************************************************************//**
-* \brief Makes the weight table from the provided parameters
+* \brief Makes the weight table from the provided parameters.
+* The weights are saved as percentages to save a division per element when getting the result.
+*
 *
 * \param f function 
 * \param a a variable
@@ -72,7 +74,7 @@ tWGHAVG::tWGHAVG(tWGHAVG_Fx f, float a, float b, unsigned int n){
 };
 
 /************************************************************************//**
-* \brief Increases position by 1. Resets to 0 if the initial position == elements.
+* \brief Increases position by 1. Resets to 0 if the increase would lead to position == elements.
 *
 */
 void tWGHAVG::incPosition(){
@@ -85,7 +87,7 @@ void tWGHAVG::incPosition(){
 };
 
 /************************************************************************//**
-* \brief Adds a value to the calculations and removes the oldest value
+* \brief Adds a value to the calculations and overwrites the oldest value.
 *
 * \param x the value to add 
 */
@@ -95,7 +97,7 @@ void tWGHAVG::addValue(float x){
 };
 
 /************************************************************************//**
-* \brief Calculates and gets the result based on the weight table and the added values
+* \brief Calculates and returns the result based on the weight table and the added values.
 *
 */
 float tWGHAVG::getResult(){
