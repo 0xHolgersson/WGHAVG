@@ -4,7 +4,7 @@
 tWGHAVG	KEYWORD1
 
 # Methods and Functions (KEYWORD2)
-addValue	KEYWORD2	
+addValue	KEYWORD2
 getResult	KEYWORD2
 incPosition	KEYWORD2
 # Instances (KEYWORD2)
