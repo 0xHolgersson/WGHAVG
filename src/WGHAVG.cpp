@@ -24,7 +24,9 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "WGHAVG.h"
 
 /************************************************************************//**
-* \brief Makes the weight table from the provided parameters
+* \brief Makes the weight table from the provided parameters.
+* The weights are saved as percentages to save a division per element when getting the result.
+*
 *
 * \param f function 
 * \param a a variable
@@ -35,42 +37,44 @@ tWGHAVG::tWGHAVG(tWGHAVG_Fx f, float a, float b, unsigned int n){
   float tempFloat;
   sumWeights = 0;
   elements = n;
-  if (f == WGHAVG_Fx_Linear){///< -a * (x * (1/n)) + 1 + b | a=negative gradient | x=element | n=number of elements | b=y-intersect
-    for (unsigned int i = 0 ; i < n ; i++){
-      tempFloat = -a*(i*1/n)+1+b;
-      sumWeights += tempFloat;
-      weights[i] = tempFloat;
-    }
-    for (unsigned int i = 0 ; i < n ; i++){
-      weights[i] /= sumWeights;
-    }
-  }
+  switch(f){
+    case WGHAVG_Fx_Linear:///< -a * (x * (1/n)) + 1 + b | a=negative gradient | x=element | n=number of elements | b=y-intersect
+      for (unsigned int i = 0 ; i < n ; i++){
+        tempFloat = -a*(i*1/n)+1+b;
+        sumWeights += tempFloat;
+        weights[i] = tempFloat;
+      }
+      for (unsigned int i = 0 ; i < n ; i++){
+        weights[i] /= sumWeights;
+      }
+      break;
 
-  else if (f == WGHAVG_Fx_Exponential){///< a * (x * (1/n) + 1) ^ -b | a=base multiplier | x=element | n=number of elements | b=negative exponent 
-    for (unsigned int i = 0 ; i < n ; i++){
-      tempFloat = a*(i*1/n)+1*-b*-b;
-      sumWeights += tempFloat;
-      weights[i] = tempFloat;
-    }
-    for (unsigned int i = 0 ; i < n ; i++){
-      weights[i] /= sumWeights;
-    }
-  }
+    case WGHAVG_Fx_Exponential:///< a * (x * (1/n) + 1) ^ -b | a=base multiplier | x=element | n=number of elements | b=negative exponent 
+      for (unsigned int i = 0 ; i < n ; i++){
+        tempFloat = a*(i*1/n)+1*-b*-b;
+        sumWeights += tempFloat;
+        weights[i] = tempFloat;
+      }
+      for (unsigned int i = 0 ; i < n ; i++){
+        weights[i] /= sumWeights;
+      }
+      break;
 
-  else if (f == WGHAVG_Fx_Cosine){///< a * cos(x * (pi/n)) + 1 + b | a=cosine amplitude | x=element | n=number of elements | b=weight last element
-    for (unsigned int i = 0 ; i < n ; i++){
-      tempFloat = float(a*cos(float(i)*M_PI/float(n))+1+b); //Cos() takes float as a parameter and returns a double
-      sumWeights += tempFloat;
-      weights[i] = tempFloat;
-    }
-    for (unsigned int i = 0 ; i < n ; i++){
-      weights[i] /= sumWeights;
-    }
+    case WGHAVG_Fx_Cosine:///< a * cos(x * (pi/n)) + 1 + b | a=cosine amplitude | x=element | n=number of elements | b=weight last element
+      for (unsigned int i = 0 ; i < n ; i++){
+        tempFloat = float(a*cos(float(i)*M_PI/float(n))+1+b); //Cos() takes float as a parameter and returns a double
+        sumWeights += tempFloat;
+        weights[i] = tempFloat;
+      }
+      for (unsigned int i = 0 ; i < n ; i++){
+        weights[i] /= sumWeights;
+      }
+      break;
   }
 };
 
 /************************************************************************//**
-* \brief Increases position by 1. Resets to 0 if the initial position == elements.
+* \brief Increases position by 1. Resets to 0 if the increase would lead to position == elements.
 *
 */
 void tWGHAVG::incPosition(){
@@ -83,7 +87,7 @@ void tWGHAVG::incPosition(){
 };
 
 /************************************************************************//**
-* \brief Adds a value to the calculations and removes the oldest value
+* \brief Adds a value to the calculations and overwrites the oldest value.
 *
 * \param x the value to add 
 */
@@ -93,7 +97,7 @@ void tWGHAVG::addValue(float x){
 };
 
 /************************************************************************//**
-* \brief Calculates and gets the result based on the weight table and the added values
+* \brief Calculates and returns the result based on the weight table and the added values.
 *
 */
 float tWGHAVG::getResult(){
